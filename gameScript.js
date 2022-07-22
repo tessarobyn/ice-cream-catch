@@ -3,12 +3,22 @@ function flavoursObj() {
   return {
     mint: "#19fa86",
     chocolate: "#4a3514",
-    strawberry: "#fa789b",
+    strawberry: "#ff4586",
     vanilla: "#faf1cf",
+    bubblegum: "#129cff",
+    lemon: "#fff64a",
+    raspberry: "#fc1e47",
   };
 }
 
-class Scoop {
+class BasicFlake {
+  constructor(num, renderContext) {
+    this.num = num;
+    this.renderContext = renderContext;
+  }
+}
+
+class BasicScoop {
   constructor(flavour, num, renderContext) {
     this.flavour = flavour;
     this.num = num;
@@ -20,6 +30,44 @@ class Scoop {
     this.renderContext.fillStyle = this.flavour;
     this.renderContext.fill(scoop);
   }
+}
+
+class GameScoop extends BasicScoop {
+  constructor() {}
+}
+
+class BasicCone {
+  constructor(startx, starty, width, height, renderContext) {
+    this.startx = startx;
+    this.starty = starty;
+    this.width = width;
+    this.height = height;
+    this.renderContext = renderContext;
+  }
+
+  draw() {
+    this.renderContext.beginPath();
+    this.renderContext.moveTo(this.startx, this.starty);
+    this.renderContext.lineTo(this.startx + this.width, this.starty);
+    this.renderContext.lineTo(
+      this.startx + this.width / 2,
+      this.starty + this.height
+    );
+    const img = new Image();
+    img.src = "img/ConeSmall.PNG";
+    img.onload = function () {
+      const targetCanvas = document.getElementById("targetIceCream");
+      const renderContext = targetCanvas.getContext("2d");
+      const pattern = renderContext.createPattern(img, "repeat");
+      console.log(pattern);
+      renderContext.fillStyle = pattern;
+      renderContext.fill();
+    };
+  }
+}
+
+class GameCone extends BasicCone {
+  constructor() {}
 }
 
 function setCanvasSize() {
@@ -36,23 +84,15 @@ function drawTarget() {
   if (targetCanvas.getContext) {
     const renderContext = targetCanvas.getContext("2d");
 
-    const scoop2 = new Scoop(flavours.mint, 2, renderContext);
+    // Ice cream
+    const scoop2 = new BasicScoop(flavours.mint, 2, renderContext);
     scoop2.draw(150, 170);
-    const scoop = new Scoop(flavours.vanilla, 1, renderContext);
+    const scoop = new BasicScoop(flavours.vanilla, 1, renderContext);
     scoop.draw(150, 230);
 
-    renderContext.beginPath();
-    renderContext.moveTo(100, 250);
-    renderContext.lineTo(200, 250);
-    renderContext.lineTo(150, 450);
-
-    const img = new Image();
-    img.src = "img/ConeSmall.PNG";
-    img.onload = function () {
-      const pattern = renderContext.createPattern(img, "repeat");
-      renderContext.fillStyle = pattern;
-      renderContext.fill();
-    };
+    // Cone
+    const cone = new BasicCone(100, 250, 100, 200, renderContext);
+    cone.draw();
   }
 }
 
