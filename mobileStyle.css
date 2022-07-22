@@ -1,0 +1,8 @@
+@media screen and (max-width: 600px) {
+  h1 {
+    font-size: 4rem;
+  }
+  .svgWaveShadow {
+    top: 52%;
+  }
+}
