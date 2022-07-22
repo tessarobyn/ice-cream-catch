@@ -11,11 +11,22 @@ function flavoursObj() {
   };
 }
 
+function setCanvasSize() {
+  const gameContainer = document.getElementsByClassName("gameContainer")[0];
+  const width = gameContainer.offsetWidth;
+  const height = gameContainer.offsetHeight;
+  const gameCanvas = document.getElementById("gameCanvas");
+  gameCanvas.width = width - 10;
+  gameCanvas.height = height - 10;
+}
+
 class BasicFlake {
   constructor(num, renderContext) {
     this.num = num;
     this.renderContext = renderContext;
+    this.color = flavours.chocolate;
   }
+  draw() {}
 }
 
 class BasicScoop {
@@ -38,28 +49,27 @@ class GameScoop extends BasicScoop {
 
 class BasicCone {
   constructor(startx, starty, width, height, renderContext) {
-    this.startx = startx;
-    this.starty = starty;
+    this.x = startx;
+    this.y = starty;
     this.width = width;
     this.height = height;
     this.renderContext = renderContext;
   }
 
-  draw() {
+  draw(id, x) {
+    if (x) {
+      this.x = x;
+    }
     this.renderContext.beginPath();
-    this.renderContext.moveTo(this.startx, this.starty);
-    this.renderContext.lineTo(this.startx + this.width, this.starty);
-    this.renderContext.lineTo(
-      this.startx + this.width / 2,
-      this.starty + this.height
-    );
+    this.renderContext.moveTo(this.x, this.y);
+    this.renderContext.lineTo(this.x + this.width, this.y);
+    this.renderContext.lineTo(this.x + this.width / 2, this.y + this.height);
     const img = new Image();
     img.src = "img/ConeSmall.PNG";
     img.onload = function () {
-      const targetCanvas = document.getElementById("targetIceCream");
-      const renderContext = targetCanvas.getContext("2d");
+      const canvas = document.getElementById(id);
+      const renderContext = canvas.getContext("2d");
       const pattern = renderContext.createPattern(img, "repeat");
-      console.log(pattern);
       renderContext.fillStyle = pattern;
       renderContext.fill();
     };
@@ -67,16 +77,12 @@ class BasicCone {
 }
 
 class GameCone extends BasicCone {
-  constructor() {}
-}
-
-function setCanvasSize() {
-  const gameContainer = document.getElementsByClassName("gameContainer")[0];
-  const width = gameContainer.offsetWidth;
-  const height = gameContainer.offsetHeight;
-  const gameCanvas = document.getElementById("gameCanvas");
-  gameCanvas.style.width = width - 10 + "px";
-  gameCanvas.style.height = height - 10 + "px";
+  moveLeft() {
+    this.x = this.x - 5;
+  }
+  moveRight() {
+    this.x = this.x + 5;
+  }
 }
 
 function drawTarget() {
@@ -92,11 +98,46 @@ function drawTarget() {
 
     // Cone
     const cone = new BasicCone(100, 250, 100, 200, renderContext);
-    cone.draw();
+    cone.draw("targetIceCream");
   }
 }
 
-const flavours = flavoursObj();
+class Game {
+  constructor() {
+    this.canvas = document.getElementById("gameCanvas");
+    if (this.canvas.getContext) {
+      this.renderContext = this.canvas.getContext("2d");
+    }
+    this.width = this.canvas.offsetWidth;
+    this.height = this.canvas.offsetHeight;
+  }
+
+  addCone() {
+    const coneHeight = this.height / 8;
+    const coneWidth = coneHeight / 2;
+    this.cone = new GameCone(
+      this.width / 2 - coneWidth / 2,
+      this.height - this.height / 5,
+      coneWidth,
+      coneHeight,
+      this.renderContext
+    );
+    this.cone.draw("gameCanvas");
+  }
+}
 
 setCanvasSize();
+
+const flavours = flavoursObj();
+const GameObj = new Game();
+GameObj.addCone();
+
 drawTarget();
+
+function checkKey(event) {
+  if (event.code === "ArrowLeft") {
+    GameObj.cone.moveLeft();
+  } else if (event.code === "ArrowRight") {
+    GameObj.cone.moveRight();
+  }
+}
