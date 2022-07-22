@@ -1,0 +1,25 @@
+body {
+  background-color: #c5e0ff;
+  display: flex;
+  height: 100%;
+}
+
+.content {
+  background-color: #db5375;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.iceCreamContainer {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+}
+
+body > div {
+  flex: 1;
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 3rem;
+}

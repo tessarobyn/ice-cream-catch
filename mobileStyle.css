@@ -5,4 +5,13 @@
   .svgWaveShadow {
     top: 52%;
   }
+  h2 {
+    font-size: 2rem;
+  }
+  body {
+    flex-direction: column;
+  }
+  .content {
+    width: 100%;
+  }
 }
