@@ -1,14 +1,18 @@
 /* Need to move to colors.js file */
 function flavoursObj() {
   return {
-    mint: "#19fa86",
-    chocolate: "#4a3514",
+    mint: "#00de3b",
+    chocolate: "#4a1e01",
     strawberry: "#ff4586",
     vanilla: "#faf1cf",
     bubblegum: "#129cff",
     lemon: "#fff64a",
     raspberry: "#fc1e47",
   };
+}
+
+function randInt(num1, num2) {
+  return Math.floor(Math.random() * (num2 - num1 + 1)) + num1;
 }
 
 function setCanvasSize() {
@@ -48,18 +52,33 @@ class BasicScoop {
 }
 
 class GameScoop extends BasicScoop {
-  constructor() {}
+  constructor(canvasWidth, radius, ctx) {
+    super();
+    const Flavours = flavoursObj();
+    const flavours = Object.values(Flavours);
+    console.log(flavours);
+    const index = randInt(0, flavours.length - 1);
+    this.flavour = flavours[index];
+    console.log(this.flavour);
+    this.x = randInt(0 + radius, canvasWidth - radius);
+    this.y = -radius;
+    this.radius = radius;
+    this.ctx = ctx;
+  }
+  drop() {
+    this.y += 3;
+  }
 }
 
 class BasicCone {
-  constructor(startx, starty, width, height, ctx, canvasId, canvasEndX) {
+  constructor(startx, starty, width, height, ctx, canvasEndX, canvasWidth) {
     this.x = startx;
     this.y = starty;
     this.width = width;
     this.height = height;
     this.ctx = ctx;
-    this.canvasId = canvasId;
     this.canvasEndX = canvasEndX;
+    this.canvasWidth = canvasWidth;
   }
 
   draw() {
@@ -67,63 +86,24 @@ class BasicCone {
     if (this.canvasEndX) {
       if (this.x < 0) {
         this.x = 0;
+      } else if (this.x > this.canvasEndX - this.width) {
+        this.x = this.canvasEndX - this.width;
       }
     }
     this.ctx.moveTo(this.x, this.y);
     this.ctx.lineTo(this.x + this.width, this.y);
     this.ctx.lineTo(this.x + this.width / 2, this.y + this.height);
-    const img = new Image();
-    img.src = "img/ConeSmall.PNG";
-    const id = this.canvasId;
-    img.onload = function () {
-      const canvas = document.getElementById(id);
-      const ctx = canvas.getContext("2d");
-      const pattern = ctx.createPattern(img, "repeat");
-      ctx.fillStyle = pattern;
-      ctx.fill();
-    };
+    this.ctx.fillStyle = "#ffa387";
+    this.ctx.fill();
   }
 }
 
 class GameCone extends BasicCone {
-  moveLeft() {
-    this.x = this.x - 5;
+  moveLeft(d) {
+    this.x -= d;
   }
-  moveRight() {
-    this.x = this.x + 5;
-  }
-}
-
-function drawTarget() {
-  const targetCanvas = document.getElementById("targetIceCream");
-  if (targetCanvas.getContext) {
-    const ctx = targetCanvas.getContext("2d");
-
-    const width = targetCanvas.width;
-    const height = targetCanvas.height;
-    console.log(width, height);
-
-    // Ice cream
-    const flavours = flavoursObj();
-    const radius = height / 25;
-    const scoops = [];
-    const scoop2 = new BasicScoop(flavours.mint, 2, ctx, width / 2, radius);
-    scoop2.draw();
-    scoops.push(scoop2);
-    const scoop = new BasicScoop(flavours.vanilla, 1, ctx, width / 2, radius);
-    scoop.draw();
-    scoops.push(scoop);
-
-    // Cone
-    const cone = new BasicCone(
-      width / 2 - radius,
-      radius + 1.25 * radius * scoops.length + radius / 2,
-      radius * 2,
-      radius * 2 * 2,
-      ctx,
-      "targetIceCream"
-    );
-    cone.draw();
+  moveRight(d) {
+    this.x += d;
   }
 }
 
@@ -135,6 +115,7 @@ class Game {
     this.canvasWidth = this.canvas.offsetWidth;
     this.canvasHeight = this.canvas.offsetHeight;
     this.addCone();
+    this.addScoop();
   }
 
   addCone() {
@@ -146,24 +127,48 @@ class Game {
       coneWidth,
       coneHeight,
       this.ctx,
-      this.canvasId,
+      this.canvasWidth,
       this.canvasWidth
     );
-    this.cone.draw("gameCanvas");
-    setInterval(this.update.bind(this));
+  }
+
+  addScoop() {
+    this.scoop = new GameScoop(
+      this.canvasWidth,
+      this.canvasHeight / 8 / 4,
+      this.ctx
+    );
+    this.scoop.draw();
   }
 
   checkKey(event) {
     if (event.code === "ArrowLeft") {
-      this.cone.moveLeft();
+      this.cone.moveLeft(5);
     } else if (event.code === "ArrowRight") {
-      this.cone.moveRight();
+      this.cone.moveRight(5);
     }
+  }
+
+  moveLeftButton() {
+    this.cone.moveLeft(2.5);
+    this.moveLeft = window.requestAnimationFrame(
+      this.moveLeftButton.bind(this)
+    );
+  }
+
+  moveRightButton() {
+    this.cone.moveRight(2.5);
+    this.moveRight = window.requestAnimationFrame(
+      this.moveRightButton.bind(this)
+    );
   }
 
   update() {
     this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     this.cone.draw();
+    this.scoop.drop();
+    this.scoop.draw();
+    window.requestAnimationFrame(this.update.bind(this));
   }
 }
 
@@ -172,8 +177,30 @@ setCanvasSize();
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const game = new Game(canvas, ctx);
-drawTarget();
+window.requestAnimationFrame(game.update.bind(game));
 
 window.addEventListener("keydown", (event) => {
   game.checkKey(event);
+});
+
+const leftButton = document.getElementById("left");
+
+leftButton.addEventListener("pointerdown", () => {
+  game.moveLeft = window.requestAnimationFrame(game.moveLeftButton.bind(game));
+});
+
+leftButton.addEventListener("pointerup", () => {
+  window.cancelAnimationFrame(game.moveLeft);
+});
+
+const rightButton = document.getElementById("right");
+
+rightButton.addEventListener("pointerdown", () => {
+  game.moveRight = window.requestAnimationFrame(
+    game.moveRightButton.bind(game)
+  );
+});
+
+rightButton.addEventListener("pointerup", () => {
+  window.cancelAnimationFrame(game.moveRight);
 });

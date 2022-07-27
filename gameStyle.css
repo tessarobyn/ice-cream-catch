@@ -1,25 +1,39 @@
+html,
 body {
   background-color: #c5e0ff;
-  display: flex;
   height: 100%;
+  overflow: hidden;
 }
 
-.content {
-  background-color: #db5375;
-  padding-left: 10px;
-  padding-right: 10px;
+.gameContainer {
+  height: 100%;
+  margin-left: 10px;
 }
 
-.iceCreamContainer {
-  background-color: rgba(255, 255, 255, 0.3);
-  border-radius: 20px;
+.left,
+.right {
+  position: absolute;
 }
 
-body > div {
-  flex: 1;
+.left {
+  left: 10px;
+  bottom: 10px;
 }
 
-h2 {
-  margin-top: 0;
-  font-size: 3rem;
+.right {
+  right: 10px;
+  bottom: 10px;
+}
+
+button {
+  font-family: "titan one", "cursive";
+  font-size: 2rem;
+  color: #ffffff;
+  background-color: rgb(80, 156, 255);
+  margin: 10px;
+  padding: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-radius: 50px;
+  border-style: none;
 }
