@@ -21,25 +21,29 @@ function setCanvasSize() {
 }
 
 class BasicFlake {
-  constructor(num, renderContext) {
+  constructor(num, ctx) {
     this.num = num;
-    this.renderContext = renderContext;
-    this.color = flavours.chocolate;
+    this.ctx = ctx;
+    this.flavours = flavoursObj();
+    this.color = this.flavours.chocolate;
   }
   draw() {}
 }
 
 class BasicScoop {
-  constructor(flavour, num, renderContext) {
+  constructor(flavour, num, ctx, x, radius) {
     this.flavour = flavour;
     this.num = num;
-    this.renderContext = renderContext;
+    this.ctx = ctx;
+    this.x = x;
+    this.y = radius + 1.25 * radius * num;
+    this.radius = radius;
   }
-  draw(x, y) {
+  draw() {
     const scoop = new Path2D();
-    scoop.arc(x, y, 50, 0, 2 * Math.PI);
-    this.renderContext.fillStyle = this.flavour;
-    this.renderContext.fill(scoop);
+    scoop.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+    this.ctx.fillStyle = this.flavour;
+    this.ctx.fill(scoop);
   }
 }
 
@@ -48,30 +52,35 @@ class GameScoop extends BasicScoop {
 }
 
 class BasicCone {
-  constructor(startx, starty, width, height, renderContext) {
+  constructor(startx, starty, width, height, ctx, canvasId, canvasEndX) {
     this.x = startx;
     this.y = starty;
     this.width = width;
     this.height = height;
-    this.renderContext = renderContext;
+    this.ctx = ctx;
+    this.canvasId = canvasId;
+    this.canvasEndX = canvasEndX;
   }
 
-  draw(id, x) {
-    if (x) {
-      this.x = x;
+  draw() {
+    this.ctx.beginPath();
+    if (this.canvasEndX) {
+      if (this.x < 0) {
+        this.x = 0;
+      }
     }
-    this.renderContext.beginPath();
-    this.renderContext.moveTo(this.x, this.y);
-    this.renderContext.lineTo(this.x + this.width, this.y);
-    this.renderContext.lineTo(this.x + this.width / 2, this.y + this.height);
+    this.ctx.moveTo(this.x, this.y);
+    this.ctx.lineTo(this.x + this.width, this.y);
+    this.ctx.lineTo(this.x + this.width / 2, this.y + this.height);
     const img = new Image();
     img.src = "img/ConeSmall.PNG";
+    const id = this.canvasId;
     img.onload = function () {
       const canvas = document.getElementById(id);
-      const renderContext = canvas.getContext("2d");
-      const pattern = renderContext.createPattern(img, "repeat");
-      renderContext.fillStyle = pattern;
-      renderContext.fill();
+      const ctx = canvas.getContext("2d");
+      const pattern = ctx.createPattern(img, "repeat");
+      ctx.fillStyle = pattern;
+      ctx.fill();
     };
   }
 }
@@ -88,56 +97,83 @@ class GameCone extends BasicCone {
 function drawTarget() {
   const targetCanvas = document.getElementById("targetIceCream");
   if (targetCanvas.getContext) {
-    const renderContext = targetCanvas.getContext("2d");
+    const ctx = targetCanvas.getContext("2d");
+
+    const width = targetCanvas.width;
+    const height = targetCanvas.height;
+    console.log(width, height);
 
     // Ice cream
-    const scoop2 = new BasicScoop(flavours.mint, 2, renderContext);
-    scoop2.draw(150, 170);
-    const scoop = new BasicScoop(flavours.vanilla, 1, renderContext);
-    scoop.draw(150, 230);
+    const flavours = flavoursObj();
+    const radius = height / 25;
+    const scoops = [];
+    const scoop2 = new BasicScoop(flavours.mint, 2, ctx, width / 2, radius);
+    scoop2.draw();
+    scoops.push(scoop2);
+    const scoop = new BasicScoop(flavours.vanilla, 1, ctx, width / 2, radius);
+    scoop.draw();
+    scoops.push(scoop);
 
     // Cone
-    const cone = new BasicCone(100, 250, 100, 200, renderContext);
-    cone.draw("targetIceCream");
+    const cone = new BasicCone(
+      width / 2 - radius,
+      radius + 1.25 * radius * scoops.length + radius / 2,
+      radius * 2,
+      radius * 2 * 2,
+      ctx,
+      "targetIceCream"
+    );
+    cone.draw();
   }
 }
 
 class Game {
-  constructor() {
-    this.canvas = document.getElementById("gameCanvas");
-    if (this.canvas.getContext) {
-      this.renderContext = this.canvas.getContext("2d");
-    }
-    this.width = this.canvas.offsetWidth;
-    this.height = this.canvas.offsetHeight;
+  constructor(canvas, ctx) {
+    this.canvas = canvas;
+    this.canvasId = "gameCanvas";
+    this.ctx = ctx;
+    this.canvasWidth = this.canvas.offsetWidth;
+    this.canvasHeight = this.canvas.offsetHeight;
+    this.addCone();
   }
 
   addCone() {
-    const coneHeight = this.height / 8;
+    const coneHeight = this.canvasHeight / 8;
     const coneWidth = coneHeight / 2;
     this.cone = new GameCone(
-      this.width / 2 - coneWidth / 2,
-      this.height - this.height / 5,
+      this.canvasWidth / 2 - coneWidth / 2,
+      this.canvasHeight - this.canvasHeight / 5,
       coneWidth,
       coneHeight,
-      this.renderContext
+      this.ctx,
+      this.canvasId,
+      this.canvasWidth
     );
     this.cone.draw("gameCanvas");
+    setInterval(this.update.bind(this));
+  }
+
+  checkKey(event) {
+    if (event.code === "ArrowLeft") {
+      this.cone.moveLeft();
+    } else if (event.code === "ArrowRight") {
+      this.cone.moveRight();
+    }
+  }
+
+  update() {
+    this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+    this.cone.draw();
   }
 }
 
 setCanvasSize();
 
-const flavours = flavoursObj();
-const GameObj = new Game();
-GameObj.addCone();
-
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const game = new Game(canvas, ctx);
 drawTarget();
 
-function checkKey(event) {
-  if (event.code === "ArrowLeft") {
-    GameObj.cone.moveLeft();
-  } else if (event.code === "ArrowRight") {
-    GameObj.cone.moveRight();
-  }
-}
+window.addEventListener("keydown", (event) => {
+  game.checkKey(event);
+});
