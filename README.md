@@ -1,6 +1,6 @@
 # Ice Cream Catch
 
-A simple 2D game built with HTML canvas.
+A simple 2D game built with HTML canvas. Play [here](https://tessarobyn.github.io/ice-cream-catch/)
 
 ## Controls
 
