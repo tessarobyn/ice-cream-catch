@@ -13,7 +13,7 @@ export class Game {
     this.caughtScoops = 0;
     this.score = document.getElementById("score");
     this.caughtScoopsGroup = [];
-    this.pause = 2500;
+    this.pause = 2250;
     this.addCone();
   }
 
@@ -50,8 +50,8 @@ export class Game {
 
   addScoops() {
     this.addScoop();
-    if (this.pause > 250) {
-      this.pause -= 10;
+    if (this.pause > 750) {
+      this.pause -= 15;
     }
     setTimeout(this.addScoops.bind(this), this.pause);
   }
