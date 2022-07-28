@@ -1,5 +1,5 @@
 function toPlayPage() {
-  window.location.href = "gameplay.html";
+  window.location.href = "gameEndless.html";
 }
 
 const playButton = document.getElementById("playButton");

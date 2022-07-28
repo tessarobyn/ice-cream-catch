@@ -8,18 +8,4 @@
   h2 {
     font-size: 2rem;
   }
-  body {
-    flex-direction: column;
-  }
-  .content {
-    width: 100%;
-    height: 40%;
-    flex: 0;
-  }
-  .iceCreamContainer {
-    height: 60%;
-  }
-  .gameContainer {
-    flex: 1;
-  }
 }
