@@ -18,6 +18,8 @@ body {
 }
 
 .score {
+  margin-left: 0;
+  margin-right: 0;
   left: 50%;
   top: 0;
   transform: translate(-50%, 0%);
