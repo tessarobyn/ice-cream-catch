@@ -133,9 +133,7 @@ class GameCone extends BasicCone {
   drag(event) {
     const mousePos = mouseDown(event, this.canvas);
     if (this.x <= mousePos[0] && mousePos[0] <= this.x + this.width) {
-      if (this.y <= mousePos[1] && mousePos[1] <= this.y + this.height) {
-        this.dragging = true;
-      }
+      this.dragging = true;
     }
   }
 
