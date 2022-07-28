@@ -66,7 +66,7 @@ class BasicScoop {
 }
 
 class GameScoop extends BasicScoop {
-  constructor(canvasWidth, radius, ctx) {
+  constructor(canvasWidth, radius, ctx, speed) {
     super();
     const Flavours = flavoursObj();
     const flavours = Object.values(Flavours);
@@ -76,9 +76,10 @@ class GameScoop extends BasicScoop {
     this.y = -radius;
     this.radius = radius;
     this.ctx = ctx;
+    this.speed = speed;
   }
   drop() {
-    this.y += 3;
+    this.y += this.speed;
   }
 }
 
@@ -123,10 +124,10 @@ class BasicCone {
 
 class GameCone extends BasicCone {
   moveLeft() {
-    this.x -= 2.5;
+    this.x -= 5;
   }
   moveRight() {
-    this.x += 2.5;
+    this.x += 5;
   }
 
   drag(event) {
@@ -152,9 +153,10 @@ class Game {
     this.canvasWidth = this.canvas.offsetWidth;
     this.canvasHeight = this.canvas.offsetHeight;
     this.scoops = [];
+    this.scoopSpeed = 3;
     this.caughtScoops = 0;
+    this.pause = 2500;
     this.addCone();
-    this.addScoop();
   }
 
   addCone() {
@@ -173,13 +175,21 @@ class Game {
   }
 
   addScoop() {
+    this.scoopSpeed += 0.25;
     this.scoop = new GameScoop(
       this.canvasWidth,
       this.canvasHeight / 8 / 4,
-      this.ctx
+      this.ctx,
+      this.scoopSpeed
     );
     this.scoop.draw();
     this.scoops.push(this.scoop);
+  }
+
+  addScoops() {
+    this.addScoop();
+    this.pause -= 10;
+    setTimeout(this.addScoops.bind(this), this.pause);
   }
 
   moveLeftButton() {
@@ -219,6 +229,7 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const game = new Game(canvas, ctx);
 window.requestAnimationFrame(game.update.bind(game));
+game.addScoops(0);
 
 const leftButton = document.getElementById("left");
 
@@ -257,5 +268,3 @@ window.addEventListener("pointermove", (event) => {
 window.addEventListener("pointerup", () => {
   game.cone.dragging = false;
 });
-
-setInterval(game.addScoop.bind(game), 2000);
