@@ -75,3 +75,12 @@ button:hover {
   background-image: url("img/Cone.PNG");
   z-index: -3;
 }
+
+p {
+  color: #00284d;
+  font-family: "roboto";
+  text-align: center;
+  padding-left: 20px;
+  padding-right: 20px;
+  font-size: 1.4rem;
+}

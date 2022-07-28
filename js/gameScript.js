@@ -228,7 +228,6 @@ class Game {
             this.caughtScoopsGroup.push(this.scoops[i]);
             this.caughtScoops += 1;
             this.score.innerText = this.caughtScoops;
-            this.cone;
           } else {
             localStorage.setItem("score", String(this.caughtScoops));
             window.location.href = "gameOver.html";
@@ -237,8 +236,7 @@ class Game {
       this.scoops[i].draw();
     }
     for (let i = 0; i < this.caughtScoopsGroup.length; i++) {
-      this.caughtScoopsGroup[i].y =
-        this.cone.y - i * this.caughtScoopsGroup[i].radius;
+      this.caughtScoopsGroup[i].y = this.cone.y - i * this.scoops[i].radius;
       this.caughtScoopsGroup[i].x =
         this.cone.x + this.caughtScoopsGroup[i].radius;
     }
