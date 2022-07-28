@@ -11,6 +11,19 @@ function flavoursObj() {
   };
 }
 
+/* Move to utils file */
+function getOffset(canvas) {
+  const rect = canvas.getBoundingClientRect();
+  return [rect.left + window.scrollX, rect.top + window.scrollY];
+}
+
+function mouseDown(event, canvas) {
+  const pos = getOffset(canvas);
+  const mouseX = event.clientX - pos[0];
+  const mouseY = event.clientY - pos[1];
+  return [mouseX, mouseY];
+}
+
 function randInt(num1, num2) {
   return Math.floor(Math.random() * (num2 - num1 + 1)) + num1;
 }
@@ -71,7 +84,16 @@ class GameScoop extends BasicScoop {
 }
 
 class BasicCone {
-  constructor(startx, starty, width, height, ctx, canvasEndX, canvasWidth) {
+  constructor(
+    startx,
+    starty,
+    width,
+    height,
+    ctx,
+    canvasEndX,
+    canvasWidth,
+    canvas
+  ) {
     this.x = startx;
     this.y = starty;
     this.width = width;
@@ -79,6 +101,8 @@ class BasicCone {
     this.ctx = ctx;
     this.canvasEndX = canvasEndX;
     this.canvasWidth = canvasWidth;
+    this.canvas = canvas;
+    this.dragging = false;
   }
 
   draw() {
@@ -99,11 +123,25 @@ class BasicCone {
 }
 
 class GameCone extends BasicCone {
-  moveLeft(d) {
-    this.x -= d;
+  moveLeft() {
+    this.x -= 2.5;
   }
-  moveRight(d) {
-    this.x += d;
+  moveRight() {
+    this.x += 2.5;
+  }
+
+  drag(event) {
+    const mousePos = mouseDown(event, this.canvas);
+    if (this.x <= mousePos[0] && mousePos[0] <= this.x + this.width) {
+      if (this.y <= mousePos[1] && mousePos[1] <= this.y + this.height) {
+        this.dragging = true;
+      }
+    }
+  }
+
+  dragMove(event) {
+    const mousePos = mouseDown(event, this.canvas);
+    this.x = mousePos[0] - this.width / 2;
   }
 }
 
@@ -114,6 +152,8 @@ class Game {
     this.ctx = ctx;
     this.canvasWidth = this.canvas.offsetWidth;
     this.canvasHeight = this.canvas.offsetHeight;
+    this.movingScoops = [];
+    this.caughtScoops = [];
     this.addCone();
     this.addScoop();
   }
@@ -128,7 +168,8 @@ class Game {
       coneHeight,
       this.ctx,
       this.canvasWidth,
-      this.canvasWidth
+      this.canvasWidth,
+      this.canvas
     );
   }
 
@@ -141,23 +182,15 @@ class Game {
     this.scoop.draw();
   }
 
-  checkKey(event) {
-    if (event.code === "ArrowLeft") {
-      this.cone.moveLeft(5);
-    } else if (event.code === "ArrowRight") {
-      this.cone.moveRight(5);
-    }
-  }
-
   moveLeftButton() {
-    this.cone.moveLeft(2.5);
+    this.cone.moveLeft();
     this.moveLeft = window.requestAnimationFrame(
       this.moveLeftButton.bind(this)
     );
   }
 
   moveRightButton() {
-    this.cone.moveRight(2.5);
+    this.cone.moveRight();
     this.moveRight = window.requestAnimationFrame(
       this.moveRightButton.bind(this)
     );
@@ -165,9 +198,9 @@ class Game {
 
   update() {
     this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-    this.cone.draw();
     this.scoop.drop();
     this.scoop.draw();
+    this.cone.draw();
     window.requestAnimationFrame(this.update.bind(this));
   }
 }
@@ -178,10 +211,6 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const game = new Game(canvas, ctx);
 window.requestAnimationFrame(game.update.bind(game));
-
-window.addEventListener("keydown", (event) => {
-  game.checkKey(event);
-});
 
 const leftButton = document.getElementById("left");
 
@@ -203,4 +232,20 @@ rightButton.addEventListener("pointerdown", () => {
 
 rightButton.addEventListener("pointerup", () => {
   window.cancelAnimationFrame(game.moveRight);
+});
+
+window.addEventListener("pointerdown", (event) => {
+  game.cone.drag(event);
+});
+
+window.addEventListener("pointermove", (event) => {
+  if (game.cone.dragging) {
+    game.dragCone = window.requestAnimationFrame(() => {
+      game.cone.dragMove(event);
+    });
+  }
+});
+
+window.addEventListener("pointerup", () => {
+  game.cone.dragging = false;
 });
