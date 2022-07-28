@@ -34,7 +34,7 @@ function setCanvasSize() {
   const height = gameContainer.offsetHeight;
   const gameCanvas = document.getElementById("gameCanvas");
   gameCanvas.width = width - 10;
-  gameCanvas.height = height - 10;
+  gameCanvas.height = height;
 }
 
 class BasicFlake {
@@ -155,6 +155,7 @@ class Game {
     this.scoops = [];
     this.scoopSpeed = 3;
     this.caughtScoops = 0;
+    this.score = document.getElementById("score");
     this.caughtScoopsGroup = [];
     this.pause = 2500;
     this.addCone();
@@ -228,6 +229,7 @@ class Game {
             this.scoops[i].caught = true;
             this.caughtScoopsGroup.push(this.scoops[i]);
             this.caughtScoops += 1;
+            this.score.innerText = this.caughtScoops;
             this.cone;
           } else {
             localStorage.setItem("score", String(this.caughtScoops));
