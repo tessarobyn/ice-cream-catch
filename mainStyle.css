@@ -23,10 +23,18 @@ body {
 
 h1,
 h2 {
-  font-size: 5rem;
   color: #0d3b66;
   text-shadow: 2px 2px #ffffff;
   text-align: center;
+  margin: 20px;
+}
+
+h1 {
+  font-size: 5.5rem;
+}
+
+h2 {
+  font-size: 3.5rem;
 }
 
 button {
@@ -66,4 +74,13 @@ button:hover {
   height: 45%;
   background-image: url("img/Cone.PNG");
   z-index: -3;
+}
+
+p {
+  color: #00284d;
+  font-family: "roboto";
+  text-align: center;
+  padding-left: 20px;
+  padding-right: 20px;
+  font-size: 1.4rem;
 }
