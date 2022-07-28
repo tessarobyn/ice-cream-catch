@@ -55,6 +55,7 @@ class BasicScoop {
     this.x = x;
     this.y = radius + 1.25 * radius * num;
     this.radius = radius;
+    this.caught = false;
   }
   draw() {
     const scoop = new Path2D();
@@ -69,10 +70,8 @@ class GameScoop extends BasicScoop {
     super();
     const Flavours = flavoursObj();
     const flavours = Object.values(Flavours);
-    console.log(flavours);
     const index = randInt(0, flavours.length - 1);
     this.flavour = flavours[index];
-    console.log(this.flavour);
     this.x = randInt(0 + radius, canvasWidth - radius);
     this.y = -radius;
     this.radius = radius;
@@ -152,8 +151,8 @@ class Game {
     this.ctx = ctx;
     this.canvasWidth = this.canvas.offsetWidth;
     this.canvasHeight = this.canvas.offsetHeight;
-    this.movingScoops = [];
-    this.caughtScoops = [];
+    this.scoops = [];
+    this.caughtScoops = 0;
     this.addCone();
     this.addScoop();
   }
@@ -180,6 +179,7 @@ class Game {
       this.ctx
     );
     this.scoop.draw();
+    this.scoops.push(this.scoop);
   }
 
   moveLeftButton() {
@@ -198,8 +198,16 @@ class Game {
 
   update() {
     this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-    this.scoop.drop();
-    this.scoop.draw();
+    for (let i = 0; i < this.scoops.length; i++) {
+      if (!this.scoops[i].caught) {
+        this.scoops[i].drop();
+        if (this.scoops[i].y + 10 > this.cone.y) {
+          this.scoops[i].caught = true;
+          this.caughtScoops += 1;
+        }
+      }
+      this.scoops[i].draw();
+    }
     this.cone.draw();
     window.requestAnimationFrame(this.update.bind(this));
   }
@@ -249,3 +257,5 @@ window.addEventListener("pointermove", (event) => {
 window.addEventListener("pointerup", () => {
   game.cone.dragging = false;
 });
+
+setInterval(game.addScoop.bind(game), 2000);

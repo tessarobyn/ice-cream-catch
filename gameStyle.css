@@ -3,6 +3,7 @@ body {
   background-color: #c5e0ff;
   height: 100%;
   overflow: hidden;
+  margin: 0;
 }
 
 .gameContainer {
