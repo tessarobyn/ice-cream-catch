@@ -21,7 +21,8 @@ body {
   z-index: 1;
 }
 
-h1 {
+h1,
+h2 {
   font-size: 5rem;
   color: #0d3b66;
   text-shadow: 2px 2px #ffffff;
