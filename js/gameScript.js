@@ -155,6 +155,7 @@ class Game {
     this.scoops = [];
     this.scoopSpeed = 3;
     this.caughtScoops = 0;
+    this.caughtScoopsGroup = [];
     this.pause = 2500;
     this.addCone();
   }
@@ -172,10 +173,14 @@ class Game {
       this.canvasWidth,
       this.canvas
     );
+    this.scoopStopY = this.cone.y;
   }
 
   addScoop() {
-    this.scoopSpeed += 0.25;
+    if (this.scoopSpeed < 10) {
+      this.scoopSpeed += 0.25;
+    }
+
     this.scoop = new GameScoop(
       this.canvasWidth,
       this.canvasHeight / 8 / 4,
@@ -188,7 +193,9 @@ class Game {
 
   addScoops() {
     this.addScoop();
-    this.pause -= 10;
+    if (this.pause > 250) {
+      this.pause -= 10;
+    }
     setTimeout(this.addScoops.bind(this), this.pause);
   }
 
@@ -211,12 +218,29 @@ class Game {
     for (let i = 0; i < this.scoops.length; i++) {
       if (!this.scoops[i].caught) {
         this.scoops[i].drop();
-        if (this.scoops[i].y + 10 > this.cone.y) {
-          this.scoops[i].caught = true;
-          this.caughtScoops += 1;
-        }
+        if (this.scoops[i].y + 10 > this.scoopStopY)
+          if (
+            this.scoops[i].x > this.cone.x &&
+            this.scoops[i].x < this.cone.x + this.cone.width
+          ) {
+            this.cone.y += this.scoops[i].radius;
+            this.scoops[i].y += this.scoops[i].radius;
+            this.scoops[i].caught = true;
+            this.caughtScoopsGroup.push(this.scoops[i]);
+            this.caughtScoops += 1;
+            this.cone;
+          } else {
+            localStorage.setItem("score", String(this.caughtScoops));
+            window.location.href = "gameOver.html";
+          }
       }
       this.scoops[i].draw();
+    }
+    for (let i = 0; i < this.caughtScoopsGroup.length; i++) {
+      this.caughtScoopsGroup[i].y =
+        this.cone.y - i * this.caughtScoopsGroup[i].radius;
+      this.caughtScoopsGroup[i].x =
+        this.cone.x + this.caughtScoopsGroup[i].radius;
     }
     this.cone.draw();
     window.requestAnimationFrame(this.update.bind(this));
