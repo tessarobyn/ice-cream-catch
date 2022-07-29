@@ -31,11 +31,23 @@ rightButton.addEventListener("pointerup", () => {
   window.cancelAnimationFrame(game.moveRight);
 });
 
-window.addEventListener("pointerdown", (event) => {
+window.addEventListener("mousedown", (event) => {
   game.cone.drag(event);
 });
 
-window.addEventListener("pointermove", (event) => {
+window.addEventListener("touchstart", (event) => {
+  game.cone.drag(event);
+});
+
+window.addEventListener("mousemove", (event) => {
+  if (game.cone.dragging) {
+    game.dragCone = window.requestAnimationFrame(() => {
+      game.cone.dragMove(event);
+    });
+  }
+});
+
+window.addEventListener("touchmove", (event) => {
   if (game.cone.dragging) {
     game.dragCone = window.requestAnimationFrame(() => {
       game.cone.dragMove(event);
@@ -44,5 +56,9 @@ window.addEventListener("pointermove", (event) => {
 });
 
 window.addEventListener("pointerup", () => {
+  game.cone.dragging = false;
+});
+
+window.addEventListener("touchend", () => {
   game.cone.dragging = false;
 });

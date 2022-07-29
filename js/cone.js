@@ -1,4 +1,4 @@
-import { mouseDown } from "./utils.js";
+import { mouseDown, touchDown } from "./utils.js";
 
 class BasicCone {
   constructor(
@@ -48,14 +48,24 @@ export class GameCone extends BasicCone {
   }
 
   drag(event) {
-    const mousePos = mouseDown(event, this.canvas);
+    let mousePos;
+    if (event === MouseEvent) {
+      mousePos = mouseDown(event, this.canvas);
+    } else {
+      mousePos = touchDown(event, this.canvas);
+    }
     if (this.x <= mousePos[0] && mousePos[0] <= this.x + this.width) {
       this.dragging = true;
     }
   }
 
   dragMove(event) {
-    const mousePos = mouseDown(event, this.canvas);
+    let mousePos;
+    if (event === MouseEvent) {
+      mousePos = mouseDown(event, this.canvas);
+    } else {
+      mousePos = touchDown(event, this.canvas);
+    }
     this.x = mousePos[0] - this.width / 2;
   }
 }
