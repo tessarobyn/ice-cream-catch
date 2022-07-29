@@ -49,7 +49,7 @@ export class GameCone extends BasicCone {
 
   drag(event) {
     let mousePos;
-    if (event === MouseEvent) {
+    if (event.type === "mousedown") {
       mousePos = mouseDown(event, this.canvas);
     } else {
       mousePos = touchDown(event, this.canvas);
@@ -61,7 +61,7 @@ export class GameCone extends BasicCone {
 
   dragMove(event) {
     let mousePos;
-    if (event === MouseEvent) {
+    if (event.type === "mousemove") {
       mousePos = mouseDown(event, this.canvas);
     } else {
       mousePos = touchDown(event, this.canvas);
